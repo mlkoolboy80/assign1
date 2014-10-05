@@ -10,7 +10,11 @@ int h = 50;
 // declare variables
 // --------------------------------------------
 // put your code inside here
-int totalScore = 0;
+int totalScore = 500;
+// one time decrease 50 score
+int decreaseStep = 50;
+// game end flag
+boolean gameEnd = false;
 
 // --------------------------------------------
 
@@ -42,37 +46,71 @@ void draw() {
   text("Score"+" "+":"+" "+totalScore,x, 89);
   
   // event handler
-  if (button) {
-    if (!rolling){
-      rolling = true;
-      // start rolling
-      // -------------------------------------------------
-      // put your code inside here
-      
-      
-      // -------------------------------------------------
-    }
-    machine.roll();
-    textSize(19);
-    text("Stop",x,y);
   
-  } else {
-    if (rolling){
-      rolling = false;
-      // stop rolling
-      // -------------------------------------------------
-      // put your code inside here
-      
- 
- 
- 
-      
-      // -------------------------------------------------
-    }
+  if(gameEnd){
     machine.stop();
     fill(253,253,253);
     textSize(19);
-    text("Roll",x,y);
+    text("End",x,y);
+  } else {
+    if (button) {
+      if (!rolling){
+        rolling = true;
+        // start rolling
+        // -------------------------------------------------
+        // put your code inside here
+        
+        
+          
+        totalScore = totalScore - decreaseStep;
+        // -------------------------------------------------
+      }
+      machine.roll();
+      textSize(19);
+      text("Stop",x,y);
+    
+    } else {
+      if (rolling){
+        rolling = false;
+        // stop rolling
+        // -------------------------------------------------
+        // put your code inside here
+        
+        // decide seven seven seven
+        boolean sevenFlag = machine.probability(0.1);
+        int fruitNumbers = machine.fruitNumbers.length;
+        
+        // random decide three fruits
+        for(int i = 0; i < machine.m; i++){
+          for(int j = 0; j < machine.n; j++){
+            if(sevenFlag){
+              machine.setSlotFruit(i, 0); // 0: seven
+            } else {
+              int rnd = int(random(fruitNumbers));
+              machine.setSlotFruit(i, rnd); // rnd: fruits
+            }
+          }
+        }
+        
+        // calculate scores
+        int getScore = 0;
+        for(int i = 0; i < fruitNumbers; i++){
+          int num = max(machine.getFruitCount(i)-1, 0);
+          getScore = getScore + machine.getSlotScore(i) * num;
+        }
+        
+        totalScore = totalScore + getScore;
+        
+        if(totalScore <= 0){
+           gameEnd = true;
+        }
+        // -------------------------------------------------
+      }
+      machine.stop();
+      fill(253,253,253);
+      textSize(19);
+      text("Roll",x,y);
+    }
   }
 
 }
@@ -83,10 +121,5 @@ void mousePressed() {
     button = !button;
   }  
 }
-
-
-
-
-
 
 
